@@ -1,9 +1,12 @@
 import { FC, useState } from "react";
-import InputTextField from "../component/InputTextField";
-import InputNumberField from "../component/InputNumberField";
+import InputTextField from "../component/Inputs/InputTextField";
+import InputNumberField from "../component/Inputs/InputNumberField";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../component/Toast/ToastContext";
+import { mockCreateAccount } from "../mock/mockapi";
 
-type AccountType = "savings" | "everyday";
+// TODO: tidy this up and put in model since it might be used somehwere else
+export type AccountType = "savings" | "everyday";
 type RadioOptionType = {
     value: AccountType;
     label: string;
@@ -16,6 +19,7 @@ const OpenAccountPage: FC = () => {
     const [savingsGoal, setSavingsGoal] = useState<number>();
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [submitting, setSubmitting] = useState(false);
+    const { showToast } = useToast();
 
     const radioOption: RadioOptionType[] = [
         {
@@ -41,15 +45,27 @@ const OpenAccountPage: FC = () => {
             savingsGoal
         }
 
-        const response = await fetch("/api/create-account", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+        // if had to use actual api call
+        // const response = await fetch("/api/create-account", {
+        //     method: "POST",
+        //     body: JSON.stringify(payload)
+        // });
 
-        setSubmitting(false);
-        if (!response.ok) throw new Error("Failed to create account");
+        const response = await mockCreateAccount(payload);
 
-        navigate("/");
+        if (!response.success) {
+            let message = "Something went wrong";
+            if (response.errorMessage) {
+                message = response.errorMessage;
+            }
+
+            showToast(message, "error");
+            throw new Error("Failed to create account");
+        } else {
+            showToast(`Account ${nickName} succefully created`, "success");
+            navigate("/");
+            setSubmitting(false);
+        }
     }
 
     const validateForm = () => {

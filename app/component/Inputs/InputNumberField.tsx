@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { SharedInputProps } from "../model/common-model";
+import { SharedInputProps } from "../../model/common-model";
 
 const InputNumberField: FC<SharedInputProps<number>> = (props) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
