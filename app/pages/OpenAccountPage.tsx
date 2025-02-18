@@ -82,8 +82,10 @@ const OpenAccountPage: FC = () => {
             delete newErrors.nickName;
         }
 
-        if (accountType === "savings" && savingsGoal !== undefined && savingsGoal > 1_000_000) {
-            newErrors.savingsGoal = "Savings goal cannot be more than $1,000,000";
+        if (accountType === "savings" && !savingsGoal) {
+            newErrors.savingsGoal = "Savings goal is required";
+        } else if (accountType === "savings" && savingsGoal && savingsGoal > 1_000_000) {
+            newErrors.savingsGoal = "Savings goal cannt be more than $1,000,000";
         } else {
             delete newErrors.savingsGoal;
         }
