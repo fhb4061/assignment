@@ -1,8 +1,12 @@
+import { Link } from "react-router-dom";
+
 const HomePage = () => {
 
     return (
         <div>
-            <span> I am here </span>
+            <Link to="/open-account">Open a bank account</Link>
         </div>
     )
 }
+
+export default HomePage;
