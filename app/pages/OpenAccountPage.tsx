@@ -1,49 +1,27 @@
 import { FC, useState } from "react";
-import InputTextField from "../component/Inputs/InputTextField";
-import InputNumberField from "../component/Inputs/InputNumberField";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../component/Toast/ToastContext";
 import { mockCreateAccount } from "../mock/mockapi";
+import { useCustomForm } from "../hooks/useCustomForm";
 
-// TODO: tidy this up and put in model since it might be used somehwere else
+// TODO: how can we pass this to our useCustomForm?
 export type AccountType = "savings" | "everyday";
-type RadioOptionType = {
-    value: AccountType;
-    label: string;
-}
 
 const OpenAccountPage: FC = () => {
     const navigate = useNavigate();
-    const [nickName, setNickName] = useState<string>();
-    const [accountType, setAccountType] = useState<AccountType>("savings");
-    const [savingsGoal, setSavingsGoal] = useState<number>();
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [submitting, setSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const { showToast } = useToast();
 
-    const radioOption: RadioOptionType[] = [
+    const { values, errors, handleSubmit, register } = useCustomForm(
+        { nickName: "", accountType: "savings" as AccountType, savingsGoal: 0 },
         {
-            value: "savings",
-            label: "Savings"
-        },
-        {
-            value: "everyday",
-            label: "Everyday"
+            nickName: { required: true, minLengh: 5, maxLength: 30 },
+            accountType: { required: true },
+            savingsGoal: { required: true }
         }
-    ]
+    );
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!validateForm()) {
-            return;
-        }
-
-        setSubmitting(true);
-        const payload = {
-            nickName,
-            accountType,
-            savingsGoal
-        }
+    const onSubmit = async (data: { nickName: string, accountType: AccountType, savingsGoal: number }) => {
 
         // if had to use actual api call
         // const response = await fetch("/api/create-account", {
@@ -51,7 +29,8 @@ const OpenAccountPage: FC = () => {
         //     body: JSON.stringify(payload)
         // });
 
-        const response = await mockCreateAccount(payload);
+        setIsSubmitting(true);
+        const response = await mockCreateAccount(data);
 
         if (!response.success) {
             let message = "Something went wrong";
@@ -60,87 +39,87 @@ const OpenAccountPage: FC = () => {
             }
 
             showToast(message, "error");
-            setSubmitting(false);
+            setIsSubmitting(false);
             throw new Error("Failed to create account");
         } else {
-            showToast(`Account ${nickName} succefully created`, "success");
+            showToast(`Account ${data.nickName} succefully created`, "success");
             navigate("/");
         }
-    }
-
-    const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
-
-        // TODO: sanitize nickname
-        // TODO: better match up error with something like the component id/name so we don't have
-        // have to hard code it like newErrors.fieldName
-        if (!nickName) {
-            newErrors.nickName = "Nickname is required";
-        } else if (nickName.length < 5 || nickName.length > 30) {
-            newErrors.nickName = "Nickname must be between 5 and 30 characters";
-        } else {
-            delete newErrors.nickName;
-        }
-
-        if (accountType === "savings" && savingsGoal !== undefined && savingsGoal > 1_000_000) {
-            newErrors.savingsGoal = "Savings goal cannot be more than $1,000,000";
-        } else {
-            delete newErrors.savingsGoal;
-        }
-
-        setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0;
     }
 
     return (
         <div>
             <span>Create account</span>
             {
-                submitting ? <span>Submitting</span> : (
-                    <form onSubmit={onSubmit}>
-                        <InputTextField
-                            value={nickName}
-                            label="Account nickname"
-                            onChange={(e) => setNickName(e)}
-                            error={errors?.nickName}
-                        />
-
+                isSubmitting ? <div><span>Submitting</span></div> : (
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <div>
-                            <div>
-                                <label>Account Type</label>
-                            </div>
-                            {
-                                radioOption.map((radio) => (
-                                    <div key={radio.value}>
-                                        <input
-                                            type="radio"
-                                            value={radio.value}
-                                            checked={accountType === radio.value}
-                                            // type this better
-                                            onChange={(e) => setAccountType(e.target.value as AccountType)}
-                                        />
-                                        <span>{radio.label}</span>
-                                    </div>
-                                ))
+                            <div><label>Account Nickname</label></div>
+                            <input
+                                type="text"
+                                {...register("nickName")}
+                            />
+
+                            {errors.nickName &&
+                                <div>
+                                    <span style={{ color: "red" }}>{errors.nickName}</span>
+                                </div>
                             }
                         </div>
 
+                        <div>
+                            <div><label>Account Type</label></div>
+                            <div>
+                                <input
+                                    type="radio"
+                                    {...register("accountType", "everyday")}
+                                />
+                                Everyday
+                                {errors.accountType &&
+                                    <div>
+                                        <span style={{ color: "red" }}>{errors.accountType}</span>
+                                    </div>
+                                }
+                            </div>
+                            <div>
+                                <input
+                                    type="radio"
+                                    {...register("accountType", "savings")}
+                                />
+                                Savings
+                                {errors.accountType &&
+                                    <div>
+                                        <span>{errors.accountType}</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
                         {
-                            accountType === "savings" &&
-                            <InputNumberField
-                                label="Savings goal"
-                                value={savingsGoal}
-                                onChange={(e) => setSavingsGoal(e)}
-                                error={errors?.savingsGoal}
-                            />
+                            values.accountType === "savings" && (
+                                <div>
+                                    <div><label>Account Nickname</label></div>
+                                    <input
+                                        type="number"
+                                        {...register("savingsGoal")}
+                                    />
+
+                                    {errors.savingsGoal &&
+                                        <div>
+                                            <span style={{ color: "red" }}>{errors.savingsGoal}</span>
+                                        </div>
+                                    }
+                                </div>
+                            )
                         }
+
                         <button type="submit">
                             Create account
                         </button>
                     </form>
                 )
             }
+
         </div>
     )
 }

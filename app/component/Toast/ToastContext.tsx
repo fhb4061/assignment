@@ -10,7 +10,7 @@ export type ToastProps = {
 
 type ToastContextType = {
     toasts: ToastProps[];
-    showToast: (message: string, type?: ToastProps["type"]) => void;
+    showToast: (message: string, type?: ToastSeverity) => void;
     removeToast: (id: number) => void;
 }
 
@@ -19,8 +19,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastProps[]>([]);
 
-    const showToast = (message: string, type: ToastProps["type"] = "info") => {
-        console.log("I am hi");
+    const showToast = (message: string, type: ToastSeverity = "info") => {
         const id = Date.now(); // TODO: use better id mechanic
         setToasts((prev) => [...prev, { id, message, type }]);
         setTimeout(() => removeToast(id), 3000); // give an option to set delay
