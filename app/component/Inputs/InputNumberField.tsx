@@ -22,7 +22,7 @@ const InputNumberField: FC<SharedInputProps<number>> = (props) => {
                 onChange={handleChange}
             />
             {props?.error &&
-                <p>{props.error}</p>
+                <p style={{ color: "red" }}>{props.error}</p>
             }
         </div>
     )

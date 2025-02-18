@@ -16,7 +16,7 @@ const InputTextField: FC<SharedInputProps<string>> = (props) => {
             />
 
             {props?.error &&
-                <p>{props.error}</p>
+                <p style={{ color: "red" }}>{props.error}</p>
             }
         </div>
     )
