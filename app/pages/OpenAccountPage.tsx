@@ -1,29 +1,32 @@
 import { FC, useState } from "react";
 import styles from "./OpenAccountPage.module.scss";
+import InputTextField from "../component/InputTextField";
+import InputNumberField from "../component/InputNumberField";
 
 type AccountType = "savings" | "everyday";
 
 const OpenAccountPage: FC = () => {
-    const [nickName, setNickName] = useState<string>("");
+    const [nickName, setNickName] = useState<string>();
     const [accountType, setAccountType] = useState<AccountType>("savings");
-    const [savingGoal, setSavingGoal] = useState<string>("0");
-    const [errors, setErrors] = useState<{[key: string]: string}>({});
+    const [savingGoal, setSavingGoal] = useState<number>();
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     return (
         <div>
             <span>Create account</span>
             <form>
-                <div>
-                    <label>Account Nickname</label>
-                    <input
-                     type="text"
-                     value={nickName}
-                     onChange={(e) => setNickName(e.target.value)}
-                    />
-                </div>
+                <InputTextField
+                    value={nickName}
+                    label="Account nickname"
+                    min={3}
+                    max={30}
+                    onChange={(e) => setNickName(e)}
+                />
 
                 <div>
-                    <label>Account Type</label>
+                    <div>
+                        <label>Account Type</label>
+                    </div>
                     <input
                         type="radio"
                         value="everyday"
@@ -42,14 +45,11 @@ const OpenAccountPage: FC = () => {
 
                 {
                     accountType === "savings" &&
-                    <div>
-                        <label>Savings goal</label>
-                        <input
-                            type="number"
-                            value={savingGoal}
-                            onChange={(e) => setSavingGoal(e.target.value)}
-                        />
-                    </div>
+                    <InputNumberField
+                        label="Savings goal"
+                        value={savingGoal}
+                        onChange={(e) => setSavingGoal(e)}
+                    />
                 }
                 <button type="submit" disabled={false}>
                     Create account
