@@ -4,4 +4,5 @@ export type SharedInputProps<V> = {
     onChange: (value: V | undefined) => void;
     min?: number;
     max?: number;
+    error?: string;
 }

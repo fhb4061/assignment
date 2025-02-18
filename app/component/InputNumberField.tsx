@@ -17,9 +17,12 @@ const InputNumberField: FC<SharedInputProps<number>> = (props) => {
 
             <input
                 type="number"
-                value={props.value}
+                value={props.value ?? ""}
                 onChange={handleChange}
             />
+            {props?.error &&
+                <p>{props.error}</p>
+            }
         </div>
     )
 }
