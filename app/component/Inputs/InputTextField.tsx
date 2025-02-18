@@ -5,10 +5,11 @@ const InputTextField: FC<SharedInputProps<string>> = (props) => {
     return (
         <div>
             <div>
-                <label>{props.label}</label>
+                <label htmlFor={props.id}>{props.label}</label>
             </div>
 
             <input
+                id={props.id}
                 type="text"
                 value={props.value ?? ""}
                 onChange={(e) => props.onChange(e.target.value)}

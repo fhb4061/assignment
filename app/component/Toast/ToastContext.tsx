@@ -23,7 +23,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
         console.log("I am hi");
         const id = Date.now(); // TODO: use better id mechanic
         setToasts((prev) => [...prev, { id, message, type }]);
-        setTimeout(() => removeToast(id), 3000000); // give an option to set delay
+        setTimeout(() => removeToast(id), 3000); // give an option to set delay
     }
 
     const removeToast = (id: number) => {

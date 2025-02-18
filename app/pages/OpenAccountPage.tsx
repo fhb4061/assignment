@@ -32,7 +32,7 @@ const OpenAccountPage: FC = () => {
         }
     ]
 
-    const onSubmit = async (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!validateForm()) {
             return;
@@ -60,11 +60,11 @@ const OpenAccountPage: FC = () => {
             }
 
             showToast(message, "error");
+            setSubmitting(false);
             throw new Error("Failed to create account");
         } else {
             showToast(`Account ${nickName} succefully created`, "success");
             navigate("/");
-            setSubmitting(false);
         }
     }
 
@@ -72,6 +72,8 @@ const OpenAccountPage: FC = () => {
         const newErrors: { [key: string]: string } = {};
 
         // TODO: sanitize nickname
+        // TODO: better match up error with something like the component id/name so we don't have
+        // have to hard code it like newErrors.fieldName
         if (!nickName) {
             newErrors.nickName = "Nickname is required";
         } else if (nickName.length < 5 || nickName.length > 30) {
@@ -81,7 +83,7 @@ const OpenAccountPage: FC = () => {
         }
 
         if (accountType === "savings" && savingsGoal !== undefined && savingsGoal > 1_000_000) {
-            newErrors.savingsGoal = "Savings goal must be up to 1 million";
+            newErrors.savingsGoal = "Savings goal cannot be more than $1,000,000";
         } else {
             delete newErrors.savingsGoal;
         }
